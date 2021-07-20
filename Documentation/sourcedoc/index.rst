@@ -1,0 +1,6 @@
+SPyGIT
+======
+
+.. toctree::
+
+   git
