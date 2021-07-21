@@ -8,33 +8,24 @@ ln -s /usr/bin/ccache /usr/local/bin/g++
 ln -s /usr/bin/ccache /usr/local/bin/cc
 ln -s /usr/bin/ccache /usr/local/bin/c++"""
 
-def get_order(path_p):
-    path = path_p
-    if path_p[-1] == '/':
-        path = path_p[:-1]
-    order_l = []
-    order_file = "{}/order".format(path)    
-    with open(order_file, 'r') as order_file:
-        for config in order_file:
-            order_l.append("{}/{}".format(path, config[:-1]))
-    return order_l
+OPTIONS = ["--disable-asm", "--disable-bashcompletion", "--disable-opencl",
+               "--disable-gpl", "--disable-thread", "--disable-win32thread",
+               "--disable-interlaced", "--bit-depth=8"]
 
-def clean_branch_name(cfg):
-    cid = cfg.split('/')[-1]
-    return "config{}-clean".format(cid)
+# def clean_branch_name(cfg):
+#     cid = cfg.split('/')[-1]
+#     return "config{}-clean".format(cid)
 
-def incremental_branch_name(fromb, newb):
-    next_cid = newb.split('/')[-1]
-    return "config{}-incremental-from-{}".format(next_cid, fromb)
+# def incremental_branch_name(fromb, newb):
+#     next_cid = newb.split('/')[-1]
+#     return "config{}-incremental-from-{}".format(next_cid, fromb)
 
 
 class Build:
 
-    def __init__(self, kernel_dir, data_dir, ccache=False,
-                 time_it=False, new=False):
-        self._kernel = kernel_dir
-        os.chdir(self._kernel)
-        self._data = data_dir
+    def __init__(self, project_dir, ccache=False, time_it=False, new=False):
+        self._project = project_dir
+        os.chdir(self._project)
         self._new = new
         self._ccache = ccache
         self._time_it = time_it
