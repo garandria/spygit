@@ -48,13 +48,12 @@ class Build:
             self.__ccache_init()
         self._git = None
         self.__git_init()
-        self._order = get_order(data_dir)
-    
+
     def __pckg_install(self):
         pckg_manager = "apt-get install -y"
         cmd = "{} {}".format(pckg_manager, self._packages)
         os.system(cmd)
-    
+
     def __ccache_init(self):
         print("Setting ccache...")
         os.system(CCACHE_SYM_LINK)
