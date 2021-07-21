@@ -65,11 +65,11 @@ class Build:
         if self._new:
             self._git.add(".",  force=True)
             self._git.commit("source")
-    
+
     def __ccache_clear(self):
         print("Ccache clear...")
         os.system("ccache -C")
-    
+
     def __sys_refresh(self):
         cmd =\
             "swapoff -a && swapon -a && sync "\
