@@ -77,59 +77,92 @@ class Build:
         print("Refresh system")
         os.system(cmd)
 
-    def build(self):
+    def build(self, trace=False):
         time_cmd = ""
+        redirect = ""
+        if trace:
+            redirect = ">> build-trace.txt"
         if self._time_it:
             time_cmd = "/usr/bin/time -pao time.txt --format=%e"
             cmd = "{} make -j$(nproc)".format(time_cmd)
         print("Build...")
-        os.system(cmd)
-
-    def __scratch(self, config):
-        curr_branch = clean_branch_name(config)
-        if curr_branch in self._git.get_all_branches():
-            self._git.checkout(curr_branch)
+        ret = os.system(cmd)
+        if ret == 0:
+            os.system("mv build-trace.txt build-trace-OK.txt")
         else:
-            self._git.create_branch(curr_branch)
-            os.system("cp {} .config".format(config))
-            self.__sys_refresh()
-            self.build()
+            os.system("mv build-trace.txt build-trace-ERROR.txt")
+
+    def configure(self, opt, trace=False):
+        conf = "./configure {}".format(opt)
+        redirect = ""
+        if trace:
+            redirect = ">> configure-trace.txt"
+        ret = os.system(cmd)
+        if ret == 0:
+            os.system("mv configure-trace.txt configure-trace-OK.txt")
+        else:
+            os.system("mv configure-trace.txt configure-trace-ERROR.txt")
+
+    def simple_conf(self):
+        configurations = []
+        configurations.append(" ".join(OPTIONS))
+        for i in range(len(OPTIONS)):
+            tmp = OPTIONS.copy()
+            del tmp[i]
+            configurations.append(" ".join(tmp))
+        for c in configurations:
+            branch_name = c.replace(" ", "")
+            self._git.create_branch(branch_name)
+            self.configure(c, trace=True)
             self._git.add(".", force=True)
             self._git.commit("clean build")
-        return curr_branch
-
-    def __incremental(self, basis, top):
-        next_config_incr_branch =\
-            incremental_branch_name(basis, top)
-        if next_config_incr_branch not in self._git.get_all_branches():
-            self._git.create_branch(next_config_incr_branch)
-            os.system("rm .config time.txt")
-            os.system("cp {} .config".format(top))
-            self.__sys_refresh()
-            self.build()
-            self._git.add(".", force=True)
-            self._git.commit("incremental build")
-        return next_config_incr_branch
-
-    def pair(self):
-        lorder = self._order.copy()
-        while lorder:
-            self.__ccache_clear()            
             self._git.checkout("master")
-            curre = lorder.pop(0)
-            cb = self.__scratch(curre)
-            if lorder:
-                nincr = lorder[0]
-                self.__incremental(cb, nincr)
-            
-    def pivot(self):
-        lorder = self._order.copy()
-        pivot = lorder[0]
-        while lorder:
-            self.__ccache_clear()            
-            self._git.checkout("master")
-            curre = lorder.pop(0)
-            cb = self.__scratch(curre)
-            if lorder:
-                nincr = lorder[0]
-                self.__incremental(cb, nincr)
+
+    # def __scratch(self, config):
+    #     curr_branch = clean_branch_name(config)
+    #     if curr_branch in self._git.get_all_branches():
+    #         self._git.checkout(curr_branch)
+    #     else:
+    #         self._git.create_branch(curr_branch)
+    #         os.system("cp {} .config".format(config))
+    #         self.__sys_refresh()
+    #         self.build()
+    #         self._git.add(".", force=True)
+    #         self._git.commit("clean build")
+    #     return curr_branch
+
+    # def __incremental(self, basis, top):
+    #     next_config_incr_branch =\
+    #         incremental_branch_name(basis, top)
+    #     if next_config_incr_branch not in self._git.get_all_branches():
+    #         self._git.create_branch(next_config_incr_branch)
+    #         os.system("rm .config time.txt")
+    #         os.system("cp {} .config".format(top))
+    #         self.__sys_refresh()
+    #         self.build()
+    #         self._git.add(".", force=True)
+    #         self._git.commit("incremental build")
+    #     return next_config_incr_branch
+
+    # def pair(self):
+    #     lorder = self._order.copy()
+    #     while lorder:
+    #         self.__ccache_clear()
+    #         self._git.checkout("master")
+    #         curre = lorder.pop(0)
+    #         cb = self.__scratch(curre)
+    #         if lorder:
+    #             nincr = lorder[0]
+    #             self.__incremental(cb, nincr)
+
+    # def pivot(self):
+    #     lorder = self._order.copy()
+    #     pivot = lorder[0]
+    #     while lorder:
+    #         self.__ccache_clear()
+    #         self._git.checkout("master")
+    #         curre = lorder.pop(0)
+    #         cb = self.__scratch(curre)
+    #         if lorder:
+    #             nincr = lorder[0]
+    #             self.__incremental(cb, nincr)
