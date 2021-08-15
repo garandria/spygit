@@ -40,9 +40,8 @@ class Git:
             print("Already a git directory")
         else:
             os.system("git init")
-            self.__check_git_config()
-            # os.system("git config --global user.email \"{}\"".format(EMAIL))
-            # os.system("git config --global user.name \"{}\"".format(NAME))
+            os.system('git config --global user.email ""')
+            os.system('git config --global user.name "Tux"')
 
     def get_all_branches(self):
         """Gives the list of all branches of the repository
