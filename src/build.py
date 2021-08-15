@@ -104,19 +104,23 @@ class Build:
             os.system("mv configure-trace.txt configure-trace-ERROR.txt")
 
     def simple_conf(self):
-        configurations = []
-        configurations.append(" ".join(OPTIONS))
-        for i in range(len(OPTIONS)):
-            tmp = OPTIONS.copy()
-            del tmp[i]
-            configurations.append(" ".join(tmp))
+        # configurations = []
+        # configurations.append(" ".join(OPTIONS))
+        # for i in range(len(OPTIONS)):
+        #     tmp = OPTIONS.copy()
+        #     del tmp[i]
+        #     configurations.append(" ".join(tmp))
+        configurations = get_configurations()
         for c in configurations:
-            branch_name = c.replace(" ", "")
+            branch_name = c[0].replace("/", "__")
+            conf = c[1]
+            self._git.checkout("master")
+            # branch_name = c.replace("--", "__").replace(" ", "")
             self._git.create_branch(branch_name)
-            self.configure(c, trace=True)
+            self.configure(conf, trace=True)
+            self.build(trace=True)
             self._git.add(".", force=True)
             self._git.commit("clean build")
-            self._git.checkout("master")
 
     # def __scratch(self, config):
     #     curr_branch = clean_branch_name(config)
