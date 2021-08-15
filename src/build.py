@@ -12,6 +12,14 @@ OPTIONS = ["--disable-asm", "--disable-bashcompletion", "--disable-opencl",
                "--disable-gpl", "--disable-thread", "--disable-win32thread",
                "--disable-interlaced", "--bit-depth=8"]
 
+def get_configurations():
+    configurations = []
+    for f in os.listdir("sample-01"):
+        path = "sample-01/{}".format(f)
+        with open(path, 'r') as conf:
+            configurations.append((path, " ".join(map(lambda x: x.strip('\n'), conf.readlines()))))
+    return configurations
+
 # def clean_branch_name(cfg):
 #     cid = cfg.split('/')[-1]
 #     return "config{}-clean".format(cid)
