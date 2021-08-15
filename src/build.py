@@ -96,6 +96,7 @@ class Build:
         redirect = ""
         if trace:
             redirect = ">> configure-trace.txt"
+        cmd = "{} {}".format(conf, redirect)
         ret = os.system(cmd)
         if ret == 0:
             os.system("mv configure-trace.txt configure-trace-OK.txt")
